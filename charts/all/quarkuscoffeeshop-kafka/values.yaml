@@ -16,5 +16,6 @@ mirrorMaker:
   localKafkaBootstrapHost: cafe-cluster-kafka-bootstrap
   localKafkaBootstrapPort: 9092
 
-  remoteKafkaBootstrapHost: homeoffice-cluster-kafka-tls-bootstrap-coffeeshop-homeoffice
+  #remoteKafkaBootstrapHost: homeoffice-cluster-kafka-tls-bootstrap-coffeeshop-homeoffice
+  remoteKafkaBootstrapHost: homeoffice-cluster-kafka-bootstrap-coffeeshop-homeoffice
 
