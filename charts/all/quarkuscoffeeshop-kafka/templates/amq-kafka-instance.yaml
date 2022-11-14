@@ -16,12 +16,14 @@ spec:
         tls: false
       - name: tls
         port: 9093
-{{- if .Values.clusterGroup.isHubCluster }}
-        type: route
-{{- else }}
         type: internal
-{{- end }}
         tls: true
+{{- if .Values.clusterGroup.isHubCluster }}
+      - name: tls
+        port: 9094
+        type: route
+        tls: true
+{{- end }}
     config:
       default.replication.factor: 3
       inter.broker.protocol.version: '3.1'
