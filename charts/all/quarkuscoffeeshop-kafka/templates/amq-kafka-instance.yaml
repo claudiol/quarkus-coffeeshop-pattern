@@ -19,7 +19,7 @@ spec:
         type: internal
         tls: true
 {{- if .Values.clusterGroup.isHubCluster }}
-      - name: tls
+      - name: external
         port: 9094
         type: route
         tls: true
