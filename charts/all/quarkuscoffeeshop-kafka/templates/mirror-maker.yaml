@@ -9,8 +9,7 @@ spec:
     bootstrapServers: >-
       {{ .Values.mirrorMaker.localKafkaBootstrapHost }}:{{ .Values.mirrorMaker.localKafkaBootstrapPort }}
     groupId: my-source-group-id
-  whitelist: 'orders-create,orders-updated,loyalty-member-purchased'
-  include: .*
+  include: 'orders-created,orders-updated,loyalty-member-purchased'
   livenessProbe:
     failureThreshold: 2
     initialDelaySeconds: 1
