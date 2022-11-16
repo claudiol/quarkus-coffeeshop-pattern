@@ -10,6 +10,15 @@ metadata:
 secrets:
   - name: quay-auth-secret
 ---
+# Source: config-demo/templates/tekton-pipelines/sa/priv-pipeline-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  # We need a non-default service account to use the privileged security context constraints
+  name: priv-pipeline
+secrets:
+  - name: quay-auth-secret
+---
 # Source: config-demo/templates/tekton-pipelines/event-notification/webhook-secret.yaml
 kind: Secret
 apiVersion: v1
@@ -294,6 +303,7 @@ spec:
 # Source: config-demo/templates/tekton-pipelines/sa/pipeline-sa.yaml
 # The s2i tasks need privileged SCC to run
 kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: pipelines-scc-clusterrole
   namespace: quarkuscoffeeshop-cicd
@@ -302,6 +312,23 @@ rules:
     - security.openshift.io
     resourceNames:
       - pipelines-scc
+      - privileged
+    resources:
+      - securiycontextconstraints
+    verbs:
+      - use
+---
+# Source: config-demo/templates/tekton-pipelines/sa/priv-pipeline-sa.yaml
+# The s2i tasks need privileged SCC to run
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: priv-pipeline-scc-clusterrole
+  namespace: quarkuscoffeeshop-cicd
+rules:
+  - apiGroups:
+      - security.openshift.io
+    resourceNames:
       - privileged
     resources:
       - securiycontextconstraints
@@ -340,6 +367,81 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: admin
+---
+# Source: config-demo/templates/tekton-pipelines/sa/priv-pipeline-sa.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: priv-pipeline-edit
+  namespace: openshift
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+  - kind: ServiceAccount
+    name: priv-pipeline
+    namespace: quarkuscoffeeshop-cicd
+---
+# Source: config-demo/templates/tekton-pipelines/sa/priv-pipeline-sa.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: priv-admin
+  namespace: quarkuscoffeeshop-demo
+subjects:
+  - kind: ServiceAccount
+    name: priv-pipeline
+    namespace: quarkuscoffeeshop-cicd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+---
+# Source: config-demo/templates/tekton-pipelines/sa/priv-pipeline-sa.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: priv-imagebuilder-cicd
+  namespace: quarkuscoffeeshop-cicd
+subjects:
+  - kind: ServiceAccount
+    name: priv-pipeline
+    namespace: quarkuscoffeeshop-cicd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-builder
+---
+# Source: config-demo/templates/tekton-pipelines/sa/priv-pipeline-sa.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: priv-imagebuilder-demo
+  namespace: quarkuscoffeeshop-demo
+subjects:
+  - kind: ServiceAccount
+    name: priv-pipeline
+    namespace: quarkuscoffeeshop-cicd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-builder
+---
+# Source: config-demo/templates/tekton-pipelines/sa/priv-pipeline-sa.yaml
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: priv-pipeline
+  namespace: quarkuscoffeeshop-cicd
+subjects:
+  - kind: ServiceAccount
+    name: priv-pipeline
+    namespace: quarkuscoffeeshop-cicd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: priv-pipeline-scc-clusterrole
 ---
 # Source: config-demo/templates/tekton-pipelines/homeoffice-backend/tektontasks/s2i-quarkus-task.yaml
 #---
@@ -2142,7 +2244,7 @@ spec:
   - name: url
     value: https://github.com/hybrid-cloud-demos/quarkuscoffeeshop-homeoffice-ui
   - name: revision
-    value: "master"
+    value: "fixbuild"
 ---
 # Source: config-demo/templates/tekton-pipelines/quarkuscoffeeshop-homeoffice-ui/resources/image-pipeline-resource.yaml
 apiVersion: tekton.dev/v1alpha1
@@ -3444,7 +3546,7 @@ metadata:
   namespace: quarkuscoffeeshop-cicd
 spec:
   params:
-    - default: '14'
+    - default: '16'
       description: The version of the nodejs
       name: VERSION
       type: string
