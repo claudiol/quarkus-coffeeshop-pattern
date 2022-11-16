@@ -1,6 +1,6 @@
 --- tests/hub-quarkuscoffeeshop-pipelines-naked.expected.yaml
 +++ tests/hub-quarkuscoffeeshop-pipelines-normal.expected.yaml
-@@ -1055,7 +1055,7 @@
+@@ -1039,7 +1039,7 @@
        type: string
      - name: revision
        type: string
@@ -9,12 +9,12 @@
  
    resources:
      - name: app-git
-@@ -2244,7 +2244,7 @@
+@@ -2229,7 +2229,7 @@
    - name: url
      value: https://github.com/hybrid-cloud-demos/quarkuscoffeeshop-homeoffice-ui
    - name: revision
 -    value: "main"
 +    value: "fixbuild"
  ---
- # Source: config-demo/templates/tekton-pipelines/quarkuscoffeeshop-homeoffice-ui/resources/image-pipeline-resource.yaml
+ # Source: quarkuscoffeeshop-pipelines/templates/tekton-pipelines/quarkuscoffeeshop-homeoffice-ui/resources/image-pipeline-resource.yaml
  apiVersion: tekton.dev/v1alpha1
